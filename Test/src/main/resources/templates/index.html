@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8" />
+	<title>Spring Boot + JPA + Datatables</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+	<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+	<script src="/js/datatable.js"></script>
+
+
+	<script>
+		$(document).ready(function () {
+			// Function to add a new empty row
+			function addEmptyRow() {
+				var newRow = '<tr>' +
+					'<td></td>' + // Empty cell for ID
+					'<td contenteditable="true"></td>' + // Editable cell for name
+					'<td contenteditable="true"></td>' + // Editable cell for email
+					'<td><button class=\'add\'>Save</button>&nbsp;&nbsp;<button class=\'cancel1\'>Cancel</button></td>' +
+					'</tr>';
+				$('#employeesTable tbody').append(newRow);
+			}
+
+			// Event handler for the addNew button click
+			$('#addNew').click(function () {
+				addEmptyRow();
+			});
+			// Save functionality
+			$(document).on('click', '.add', function () {
+				var $row = $(this).closest('tr');
+				var id = $row.find('td:nth-child(1)').text();
+				var name = $row.find('td:nth-child(2)').text().trim(); // Trim whitespace
+				var email = $row.find('td:nth-child(3)').text().trim(); // Trim whitespace
+
+				// Perform validation
+				if (name === '' || email === '') {
+					$("#msg").html("<span style='color: red; font-size:25px'>Name and Email are required</span>");
+					window.setTimeout(function () {location.reload()}, 1000)
+					return;
+				}
+
+				$.ajax({
+					type: "POST",
+					contentType: "application/json; charset=utf-8",
+					url: "http://localhost:8083/employee/save",
+					data: JSON.stringify({'id': id, 'name': name, 'email': email}),
+					cache: false,
+					success: function (result) {
+						$("#msg").html("<span style='color: green'>Company added successfully</span>");
+						$row.find('.save').text('Edit').removeClass('save').addClass('edit');
+						$row.find('.cancel').remove();
+						window.setTimeout(function () {location.reload()}, 1000)
+					},
+					error: function (err) {
+						$("#msg").html("<span style='color: red'>Error saving company</span>");
+					}
+				});
+			});
+			// Cancel functionality
+			$(document).on('click', '.cancel1', function () {
+				$(this).closest('tr').remove();
+			});
+
+			// Delete functionalit
+
+
+		});
+
+
+	</script>
+</head>
+
+<body>
+	<h3 class="text-center">Employees Table</h3>
+
+	<p style="padding-left: 270px; margin-bottom: 30px;"><button class='btn btn-primary' id="addNew">Add New Emp</button></p>
+	
+	
+	<div id="div1" style="width: 1000px; border: 1px solid black ; margin: auto;">
+
+
+		<table id="employeesTable" class="display 	table-dark">
+
+
+
+			<!-- Header Table -->
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Update</th>
+					<th>Delete</th>
+					
+
+				</tr>
+			</thead>
+			<!-- Footer Table -->
+
+			<tfoot id="tableID">
+				<tr>
+					<th>Id</th>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Update</th>
+					<th>Delete</th>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+</body>
+
+</html>
