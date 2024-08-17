@@ -14,5 +14,10 @@ public class HomeController {
 		public String goHome(){
 			return "index";
 		}
+		
+		@GetMapping("/msg")
+		public String msg() {
+			return "Hello welcome to my page";
+		}
 
 	}
